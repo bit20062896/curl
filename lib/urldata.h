@@ -1165,6 +1165,11 @@ struct UrlState {
     Curl_if_multi
   } used_interface;
 
+  /* when curl_easy_perform() is called, the multi handle is "owned" by
+     the easy handle so curl_easy_cleanup() on such an easy handle will
+     also close the multi handle! */
+  bool multi_owned_by_easy;
+
   struct conncache *connc; /* points to the connection cache this handle
                               uses */
 
@@ -1619,7 +1624,11 @@ struct Names {
 struct SessionHandle {
   struct Names dns;
   struct Curl_multi *multi;    /* if non-NULL, points to the multi handle
-                                  struct to which this "belongs" */
+                                  struct to which this "belongs" when used by
+                                  the multi interface */
+  struct Curl_multi *multi_easy; /* if non-NULL, points to the multi handle
+                                    struct to which this "belongs" when used
+                                    by the easy interface */
   struct Curl_one_easy *multi_pos; /* if non-NULL, points to its position
                                       in multi controlling structure to assist
                                       in removal. */
